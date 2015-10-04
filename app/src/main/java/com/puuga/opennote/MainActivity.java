@@ -18,6 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import com.crashlytics.android.Crashlytics;
+import com.facebook.appevents.AppEventsLogger;
+
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -65,6 +70,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Logs 'install' and 'app activate' App Events.
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -116,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "MAP";
                 case 1:
-                    return "SECTION 2";
+                    return "MESSAGES";
                 case 2:
-                    return "SECTION 3";
+                    return "PROFILE";
             }
             return null;
         }
