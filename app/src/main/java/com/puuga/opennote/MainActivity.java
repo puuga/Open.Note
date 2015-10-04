@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.analytics.Tracker;
+import com.puuga.opennote.helper.SettingHelper;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -39,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    // SharedPreferences
+    SettingHelper settingHelper;
+
+    // Google Analytic
+    Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +114,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initGoogleAnalytic() {
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
 
