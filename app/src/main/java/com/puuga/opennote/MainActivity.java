@@ -1,5 +1,6 @@
 package com.puuga.opennote;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -54,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
+        initSharedPreferences();
+
+        initGoogleAnalytic();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -84,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
+
+        // check login
+        if (!settingHelper.isFacebookLogin()) {
+            Intent i = new Intent(this, FacebookLoginActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+        }
     }
 
     @Override
@@ -109,11 +121,21 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_logout:
+                Intent i = new Intent(this, FacebookLoginActivity.class);
+                startActivity(i);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initSharedPreferences() {
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        settingHelper = application.getSettingHelper();
     }
 
     private void initGoogleAnalytic() {

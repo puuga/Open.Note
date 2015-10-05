@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
@@ -35,7 +35,8 @@ import java.util.Arrays;
 
 import io.fabric.sdk.android.Fabric;
 
-public class FirstActivity extends AppCompatActivity {
+public class FacebookLoginActivity extends AppCompatActivity {
+
     TextView tvFacebookInfo;
 
     // facebook sdk
@@ -54,7 +55,7 @@ public class FirstActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         initFacebookSdk();
-        setContentView(R.layout.activity_first);
+        setContentView(R.layout.activity_facebook_login);
 
         printHashKey();
 
@@ -81,7 +82,8 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     private void initSharedPreferences() {
-        settingHelper = SettingHelper.createSettingHelper(this);
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        settingHelper = application.getSettingHelper();
     }
 
     private void initFacebookLogin() {
@@ -150,10 +152,7 @@ public class FirstActivity extends AppCompatActivity {
                     Log.d("fb_logout", "fb_logout");
                     tvFacebookInfo.setText("");
 
-                    settingHelper.setFacebookLogin(false);
-                    settingHelper.setFacebookToken("");
-                    settingHelper.setFacebookId("");
-                    settingHelper.setFacebookName("");
+                    setFacebookInfo(false, "", "", "");
                 }
             }
         };
@@ -193,14 +192,15 @@ public class FirstActivity extends AppCompatActivity {
                             Log.d("fb_info", "gender: " + object.getString("gender"));
                             Log.d("fb_info", "facebook_token: " + facebookToken);
 
-                            settingHelper.setFacebookLogin(true);
-                            settingHelper.setFacebookToken(facebookToken);
-                            settingHelper.setFacebookId(object.getString("id"));
-                            settingHelper.setFacebookName(object.getString("name"));
+                            setFacebookInfo(true, facebookToken, object.getString("id"), object.getString("name"));
 
                             tvFacebookInfo.setText(getString(R.string.login_as, settingHelper.getFacebookName()));
 
 //                            loginCity(LoginManager.getParamsByFacebookGraph(object, facebookToken));
+
+                            Intent i = new Intent(FacebookLoginActivity.this, MainActivity.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(i);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -237,6 +237,13 @@ public class FirstActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setFacebookInfo(boolean isLogin, String facebookToken, String id, String name) {
+        settingHelper.setFacebookLogin(isLogin);
+        settingHelper.setFacebookToken(facebookToken);
+        settingHelper.setFacebookId(id);
+        settingHelper.setFacebookName(name);
     }
 
     private void printHashKey() {
