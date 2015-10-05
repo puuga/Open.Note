@@ -137,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                 Intent i = new Intent(this, FacebookLoginActivity.class);
                 startActivity(i);
                 return true;
+            case R.id.action_profile:
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -188,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 2 total pages.
             return 2;
         }
 
