@@ -8,4 +8,7 @@ public class Constant {
     public static final String FACEBOOK_TOKEN = "FACEBOOK_TOKEN";
     public static final String FACEBOOK_ID = "FACEBOOK_ID";
     public static final String FACEBOOK_NAME = "FACEBOOK_NAME";
+
+    public static final String API_BASE = "http://128.199.208.34/open.note/";
+    public static final String API_MESSAGE = "http://128.199.208.34/open.note/messages.php";
 }

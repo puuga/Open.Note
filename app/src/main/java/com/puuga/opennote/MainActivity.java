@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,10 +24,16 @@ import com.crashlytics.android.Crashlytics;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.analytics.Tracker;
 import com.puuga.opennote.helper.SettingHelper;
+import com.puuga.opennote.manager.APIService;
+import com.puuga.opennote.model.Message;
 
 import io.fabric.sdk.android.Fabric;
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, MapFragment.OnFragmentReadyListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -49,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     // Google Analytic
     Tracker mTracker;
 
+    // Retrofit
+    APIService service;
+
+    // widget
     FloatingActionButton fab;
 
     @Override
@@ -62,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         initGoogleAnalytic();
 
         initInstances();
+
+        initRetrofit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -77,8 +90,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+    }
 
-
+    private void initRetrofit() {
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        service = application.getAPIService();
     }
 
     private void initInstances() {
@@ -90,6 +106,33 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    void loadMessage() {
+        Call<Message[]> call = service.loadMessages();
+        call.enqueue(new Callback<Message[]>() {
+            @Override
+            public void onResponse(Response<Message[]> response, Retrofit retrofit) {
+                Message[] messages = response.body();
+//                Toast.makeText(getApplicationContext(), "response", Toast.LENGTH_SHORT).show();
+                Snackbar.make(fab, "Messages loaded", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                Log.d("response", "messages count:" + String.valueOf(messages.length));
+                for (Message message : messages) {
+                    Log.d("response", "messages :" + message.getMessage());
+                }
+                makeMarker(messages);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d("response_failure", t.getMessage());
+            }
+        });
+    }
+
+    void makeMarker(Message[] messages) {
+        mSectionsPagerAdapter.mapFragment.makeMarkers(messages);
     }
 
     @Override
@@ -160,6 +203,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
     }
 
+    @Override
+    public void OnFragmentReady() {
+        loadMessage();
+    }
+
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -169,9 +217,15 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         FloatingActionButton fab;
 
+        MapFragment mapFragment;
+        PlaceholderFragment placeholderFragment;
+
         public SectionsPagerAdapter(FragmentManager fm, FloatingActionButton fab) {
             super(fm);
             this.fab = fab;
+
+            mapFragment = MapFragment.newInstance();
+            placeholderFragment = PlaceholderFragment.newInstance(2);
         }
 
         @Override
@@ -181,10 +235,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             switch (position) {
                 case 0:
                     fab.hide();
-                    return MapFragment.newInstance();
+                    return mapFragment;
                 default:
                     fab.show();
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return placeholderFragment;
             }
         }
 

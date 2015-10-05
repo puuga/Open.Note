@@ -18,6 +18,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.puuga.opennote.model.Message;
 
 
 /**
@@ -29,7 +30,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * create an instance of this fragment.
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback,
-        LocationListener, GoogleMap.OnMapClickListener, GoogleMap.OnCameraChangeListener {
+        LocationListener,
+        GoogleMap.OnMapClickListener,
+        GoogleMap.OnCameraChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -40,6 +43,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private OnFragmentReadyListener mOnFragmentReady;
 
     MapView mMapView;
     GoogleMap mGoogleMap;
@@ -107,6 +111,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         super.onAttach(activity);
         try {
             mListener = (OnFragmentInteractionListener) activity;
+            mOnFragmentReady = (OnFragmentReadyListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -117,6 +122,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mOnFragmentReady = null;
     }
 
     @Override
@@ -126,6 +132,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mGoogleMap.setMyLocationEnabled(true);
         mGoogleMap.setOnMapClickListener(this);
         mGoogleMap.setOnCameraChangeListener(this);
+
+        mOnFragmentReady.OnFragmentReady();
     }
 
     @Override
@@ -150,10 +158,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapClick(LatLng latLng) {
+    }
+
+    void makeMarkers(Message[] messages) {
         mGoogleMap.clear();
-        mGoogleMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(latLng.toString()));
+        for (Message message : messages) {
+            LatLng latLng = new LatLng(message.getLat(), message.getLng());
+            mGoogleMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(message.getMessage()));
+        }
     }
 
     @Override
@@ -174,6 +188,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    public interface OnFragmentReadyListener {
+        public void OnFragmentReady();
     }
 
 }
