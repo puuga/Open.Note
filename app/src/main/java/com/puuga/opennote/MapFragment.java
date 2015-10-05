@@ -15,6 +15,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -27,7 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnMapClickListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnMapClickListener, GoogleMap.OnCameraChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -123,6 +124,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mGoogleMap = googleMap;
         mGoogleMap.setMyLocationEnabled(true);
         mGoogleMap.setOnMapClickListener(this);
+        mGoogleMap.setOnCameraChangeListener(this);
     }
 
     @Override
@@ -151,6 +153,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mGoogleMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(latLng.toString()));
+    }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+        Log.d("GoogleMap", cameraPosition.toString());
     }
 
     /**
