@@ -9,7 +9,7 @@ public class User {
     public String lastname;
     public String name;
     public String email;
-    public String facebookId;
+    public String facebook_id;
 
     private User() {
     }
@@ -44,7 +44,7 @@ public class User {
     }
 
     public User setFacebookId(String facebookId) {
-        this.facebookId = facebookId;
+        this.facebook_id = facebookId;
         return this;
     }
 
@@ -54,6 +54,6 @@ public class User {
                 + ", lastname: " + lastname
                 + ", name: " + name
                 + ", email: " + email
-                + ", facebookId: " + facebookId;
+                + ", facebookId: " + facebook_id;
     }
 }
