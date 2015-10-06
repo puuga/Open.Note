@@ -319,7 +319,10 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
     private void goToMainActivity() {
         Intent i = new Intent(FacebookLoginActivity.this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
+
+        // close this activity
+        finish();
     }
 }
