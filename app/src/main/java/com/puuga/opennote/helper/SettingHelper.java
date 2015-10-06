@@ -63,4 +63,14 @@ public class SettingHelper {
         editor.commit();
         Log.d(TAG, "setFacebookName:" + val);
     }
+
+    public String getAppId() {
+        return sharedPref.getString(Constant.APP_ID, "");
+    }
+
+    public void setAppId(String val) {
+        editor.putString(Constant.APP_ID, val);
+        editor.commit();
+        Log.d(TAG, "setAppId:" + val);
+    }
 }

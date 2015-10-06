@@ -1,6 +1,7 @@
 package com.puuga.opennote;
 
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +24,11 @@ import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 import com.puuga.opennote.model.Message;
@@ -33,7 +39,11 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, MapFragment.OnFragmentReadyListener {
+public class MainActivity extends AppCompatActivity implements
+        MapFragment.OnFragmentInteractionListener,
+        MapFragment.OnFragmentReadyListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -56,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     // Google Analytic
     Tracker mTracker;
 
+    // Google API
+    GoogleApiClient mGoogleApiClient;
+    LocationRequest mLocationRequest;
+    Location mCurrentLocation;
+
     // Retrofit
     APIService service;
 
@@ -75,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         initInstances();
 
         initRetrofit();
+
+        createLocationRequest();
+        buildGoogleApiClient();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -148,6 +166,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
         }
+
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -156,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         // Logs 'app deactivate' App Event.
         AppEventsLogger.deactivateApp(this);
+
+        stopLocationUpdates();
     }
 
     @Override
@@ -187,6 +209,33 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         return super.onOptionsItemSelected(item);
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    protected void stopLocationUpdates() {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
+    }
+
     private void initSharedPreferences() {
         AnalyticsApplication application = (AnalyticsApplication) getApplication();
         settingHelper = application.getSettingHelper();
@@ -206,6 +255,27 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     @Override
     public void OnFragmentReady() {
         loadMessage();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        Log.d("location", location.toString());
     }
 
 

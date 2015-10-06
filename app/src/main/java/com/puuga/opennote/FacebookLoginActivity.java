@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.TextView;
@@ -26,6 +26,8 @@ import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.puuga.opennote.helper.SettingHelper;
+import com.puuga.opennote.manager.APIService;
+import com.puuga.opennote.model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +36,10 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 import io.fabric.sdk.android.Fabric;
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public class FacebookLoginActivity extends AppCompatActivity {
 
@@ -49,6 +55,9 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
     // Google Analytic
     Tracker mTracker;
+
+    // Retrofit
+    APIService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +75,8 @@ public class FacebookLoginActivity extends AppCompatActivity {
         initFacebookLogin();
 
         initInstance();
+
+        initRetrofit();
     }
 
     private void initInstance() {
@@ -153,6 +164,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
                     tvFacebookInfo.setText("");
 
                     setFacebookInfo(false, "", "", "");
+                    setAppInfo("");
                 }
             }
         };
@@ -192,15 +204,9 @@ public class FacebookLoginActivity extends AppCompatActivity {
                             Log.d("fb_info", "gender: " + object.getString("gender"));
                             Log.d("fb_info", "facebook_token: " + facebookToken);
 
-                            setFacebookInfo(true, facebookToken, object.getString("id"), object.getString("name"));
+                            User user = createUser(object);
 
-                            tvFacebookInfo.setText(getString(R.string.login_as, settingHelper.getFacebookName()));
-
-//                            loginCity(LoginManager.getParamsByFacebookGraph(object, facebookToken));
-
-                            Intent i = new Intent(FacebookLoginActivity.this, MainActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            startActivity(i);
+                            registerUser(user, facebookToken);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -246,6 +252,10 @@ public class FacebookLoginActivity extends AppCompatActivity {
         settingHelper.setFacebookName(name);
     }
 
+    private void setAppInfo(String id) {
+        settingHelper.setAppId(id);
+    }
+
     private void printHashKey() {
         // Add code to print out the key hash
         try {
@@ -261,5 +271,55 @@ public class FacebookLoginActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void initRetrofit() {
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        service = application.getAPIService();
+    }
+
+    private void registerUser(User user, final String token) {
+        Log.d("create_user", user.toString());
+        Call<User> call = service.registerUser(user.firstname, user.lastname, user.name, user.email, user.facebook_id);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Response<User> response, Retrofit retrofit) {
+                try {
+                    response.errorBody().string();
+                    Log.d("response_error", response.errorBody().string());
+                } catch (Exception ignored) {
+                }
+                User user = response.body();
+                Log.d("response", "user:" + user.toString());
+
+                setFacebookInfo(true, token, user.facebook_id, user.name);
+
+                setAppInfo(user.id);
+
+                tvFacebookInfo.setText(getString(R.string.login_as, settingHelper.getFacebookName()));
+
+                goToMainActivity();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d("response_failure", t.getMessage());
+            }
+        });
+    }
+
+    private User createUser(JSONObject object) throws JSONException {
+        return User.createUser()
+                .setFirstname(object.getString("first_name"))
+                .setLastname(object.getString("last_name"))
+                .setName(object.getString("name"))
+                .setEmail(object.getString("email"))
+                .setFacebookId(object.getString("id"));
+    }
+
+    private void goToMainActivity() {
+        Intent i = new Intent(FacebookLoginActivity.this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(i);
     }
 }
