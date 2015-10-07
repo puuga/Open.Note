@@ -2,12 +2,14 @@ package com.puuga.opennote;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.assist.AssistContent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
@@ -39,6 +42,9 @@ import com.google.android.gms.location.LocationServices;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 import com.puuga.opennote.model.Message;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import io.fabric.sdk.android.Fabric;
 import retrofit.Call;
@@ -136,8 +142,34 @@ public class MainActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                makeSubmitMessageDialog().show();
+            }
+        });
+    }
+
+    void submitMessage(String message) {
+        Log.d("submit", message);
+        Log.d("location", mCurrentLocation.toString());
+
+        String lat = String.valueOf(mCurrentLocation.getLatitude());
+        String lng = String.valueOf(mCurrentLocation.getLongitude());
+
+        Call<Message> call = service.submitMessage(settingHelper.getAppId(), message, lat, lng);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Response<Message> response, Retrofit retrofit) {
+                Message message = response.body();
+                Snackbar.make(fab, "Submitted", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Log.d("submitted",message.toString());
+                loadMessage();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
             }
         });
     }
@@ -147,6 +179,11 @@ public class MainActivity extends AppCompatActivity implements
         call.enqueue(new Callback<Message[]>() {
             @Override
             public void onResponse(Response<Message[]> response, Retrofit retrofit) {
+                try {
+                    response.errorBody().string();
+                    Log.d("response_error", response.errorBody().string());
+                } catch (Exception ignored) {
+                }
                 Message[] messages = response.body();
 //                Toast.makeText(getApplicationContext(), "response", Toast.LENGTH_SHORT).show();
                 Snackbar.make(fab, "Messages loaded", Snackbar.LENGTH_LONG)
@@ -189,6 +226,28 @@ public class MainActivity extends AppCompatActivity implements
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                 REQUEST_LOCATION);
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    private Dialog makeSubmitMessageDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        // Get the layout inflater
+        LayoutInflater inflater = getLayoutInflater();
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        final View v = inflater.inflate(R.layout.dialog_submit_message, null);
+        builder.setView(v)
+                .setPositiveButton(R.string.publish, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String message = ((EditText) v.findViewById(R.id.edt_message)).getText().toString();
+                        submitMessage(message);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                     }
                 });
         // Create the AlertDialog object and return it
@@ -393,6 +452,32 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("location", location.toString());
     }
 
+    @Override
+    public void onProvideAssistData(Bundle data) {
+        super.onProvideAssistData(data);
+    }
+
+    @Override
+    public void onProvideAssistContent(AssistContent outContent) {
+        super.onProvideAssistContent(outContent);
+
+        if (mCurrentLocation.hasAccuracy() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                JSONObject geo = new JSONObject()
+                        .put("@type", "GeoCoordinates")
+                        .put("latitude", String.valueOf(mCurrentLocation.getLatitude()))
+                        .put("longitude", String.valueOf(mCurrentLocation.getLongitude()));
+                JSONObject structuredJson = new JSONObject()
+                        .put("@type", "Place")
+                        .put("geo", geo);
+                Log.d("json_provider", geo.toString());
+                outContent.setStructuredData(structuredJson.toString());
+
+            } catch (JSONException e) {
+                Log.d("json_error", e.getMessage());
+            }
+        }
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

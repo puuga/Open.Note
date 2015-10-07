@@ -7,9 +7,12 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="login_as">Login as: %1$s</string>
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="publish">Publish</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <string name="message_deny_location_permission">You choose to deny location permission. Please re-start app to request permission again.</string>
     <string name="message_request_location_permission">This app have to use Location permission to work silky.</string>
+    <string name="message">Message</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

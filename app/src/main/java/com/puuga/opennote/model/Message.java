@@ -40,4 +40,8 @@ public class Message {
     public void setLng(float lng) {
         this.lng = lng;
     }
+
+    public String toString() {
+        return "message:" + message + ", lat:" + lat + ", lng:" + lng;
+    }
 }

@@ -29,4 +29,11 @@ public interface APIService {
                             @Field("name") String name,
                             @Field("email") String email,
                             @Field("facebook_id") String facebook_id);
+
+    @FormUrlEncoded
+    @POST(Constant.API_SUBMIT_MESSAGE)
+    Call<Message> submitMessage(@Field("user_id") String user_id,
+                            @Field("message") String message,
+                            @Field("lat") String lat,
+                            @Field("lng") String lng);
 }
