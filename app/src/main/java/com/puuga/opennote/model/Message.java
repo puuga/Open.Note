@@ -8,6 +8,7 @@ public class Message {
     private String message;
     private float lat;
     private float lng;
+    private User user;
 
     public String getId() {
         return id;
@@ -41,7 +42,15 @@ public class Message {
         this.lng = lng;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     public String toString() {
-        return "message:" + message + ", lat:" + lat + ", lng:" + lng;
+        return "message:" + message + ", lat:" + lat + ", lng:" + lng + ", user:" + user;
     }
 }

@@ -47,6 +47,10 @@ import com.puuga.opennote.model.Message;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.fabric.sdk.android.Fabric;
 import retrofit.Call;
 import retrofit.Callback;
@@ -118,9 +122,10 @@ public class MainActivity extends AppCompatActivity implements
         createLocationRequest();
         buildGoogleApiClient();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        initPager();
+    }
 
+    private void initPager() {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), fab);
@@ -131,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
 
     private void initRetrofit() {
@@ -140,6 +144,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initInstances() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements
                 Message message = response.body();
                 Snackbar.make(fab, "Submitted", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                Log.d("submitted",message.toString());
+                Log.d("submitted", message.toString());
                 loadMessage();
             }
 
@@ -195,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d("response", "messages :" + message.getMessage());
                 }
                 makeMarker(messages);
+                setAdapter(messages);
             }
 
             @Override
@@ -206,6 +214,11 @@ public class MainActivity extends AppCompatActivity implements
 
     void makeMarker(Message[] messages) {
         mSectionsPagerAdapter.mapFragment.makeMarkers(messages);
+    }
+
+    void setAdapter(Message[] messages) {
+        List<Message> messageList = new ArrayList<>(Arrays.asList(messages));
+        mSectionsPagerAdapter.messageFragment.setAdapter(messageList);
     }
 
     private Dialog makeDenyLocationPermissionDialog() {
@@ -505,14 +518,14 @@ public class MainActivity extends AppCompatActivity implements
         FloatingActionButton fab;
 
         MapFragment mapFragment;
-        PlaceholderFragment placeholderFragment;
+        MessageFragment messageFragment;
 
         public SectionsPagerAdapter(FragmentManager fm, FloatingActionButton fab) {
             super(fm);
             this.fab = fab;
 
             mapFragment = MapFragment.newInstance();
-            placeholderFragment = PlaceholderFragment.newInstance(2);
+            messageFragment = MessageFragment.newInstance();
         }
 
         @Override
@@ -525,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements
                     return mapFragment;
                 default:
                     fab.show();
-                    return placeholderFragment;
+                    return messageFragment;
             }
         }
 

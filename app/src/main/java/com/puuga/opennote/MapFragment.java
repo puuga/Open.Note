@@ -2,7 +2,6 @@ package com.puuga.opennote;
 
 import android.app.Activity;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,60 +12,24 @@ import android.view.ViewGroup;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.puuga.opennote.model.Message;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MapFragment extends Fragment implements
         OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
         GoogleMap.OnCameraChangeListener,
         GoogleMap.OnMyLocationChangeListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
     private OnFragmentReadyListener mOnFragmentReady;
 
-    MapView mMapView;
     GoogleMap mGoogleMap;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MapFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MapFragment newInstance(String param1, String param2) {
-        MapFragment fragment = new MapFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    boolean isCameraMoving;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -79,15 +42,12 @@ public class MapFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        isCameraMoving = false;
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -101,18 +61,10 @@ public class MapFragment extends Fragment implements
         mapFragment.getMapAsync(this);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
             mOnFragmentReady = (OnFragmentReadyListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
@@ -123,7 +75,6 @@ public class MapFragment extends Fragment implements
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
         mOnFragmentReady = null;
     }
 
@@ -149,15 +100,22 @@ public class MapFragment extends Fragment implements
     }
 
     public void moveCameraToMyLocation(Location location, float zoom) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-        mGoogleMap.animateCamera(cameraUpdate);
+        if (!isCameraMoving) {
+            isCameraMoving = true;
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+            mGoogleMap.animateCamera(cameraUpdate);
+        }
     }
 
     public void moveCameraToMyLocation(Location location) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
-        mGoogleMap.animateCamera(cameraUpdate);
+        if (!isCameraMoving) {
+            isCameraMoving = true;
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+            mGoogleMap.animateCamera(cameraUpdate);
+        }
+
     }
 
     void makeMarkers(Message[] messages) {
@@ -166,6 +124,7 @@ public class MapFragment extends Fragment implements
             LatLng latLng = new LatLng(message.getLat(), message.getLng());
             mGoogleMap.addMarker(new MarkerOptions()
                     .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon96v2))
                     .title(message.getMessage()));
         }
     }
@@ -173,26 +132,12 @@ public class MapFragment extends Fragment implements
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d("GoogleMap", cameraPosition.toString());
+        isCameraMoving = false;
     }
 
     @Override
     public void onMyLocationChange(Location location) {
         moveCameraToMyLocation(location);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
     }
 
     public interface OnFragmentReadyListener {
