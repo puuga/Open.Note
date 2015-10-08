@@ -1,6 +1,8 @@
 package com.puuga.opennote;
 
+import android.app.Activity;
 import android.app.Application;
+import android.os.Bundle;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -14,7 +16,8 @@ import retrofit.Retrofit;
 /**
  * Created by siwaweswongcharoen on 10/4/2015 AD.
  */
-public class AnalyticsApplication extends Application {
+public class AnalyticsApplication extends Application implements
+        Application.OnProvideAssistDataListener {
     private Tracker mTracker;
 
     // SharedPreferences
@@ -49,5 +52,15 @@ public class AnalyticsApplication extends Application {
             service = retrofit.create(APIService.class);
         }
         return service;
+    }
+
+    @Override
+    public void registerOnProvideAssistDataListener(OnProvideAssistDataListener callback) {
+        super.registerOnProvideAssistDataListener(callback);
+    }
+
+    @Override
+    public void onProvideAssistData(Activity activity, Bundle bundle) {
+
     }
 }

@@ -2,7 +2,6 @@ package com.puuga.opennote;
 
 import android.app.Activity;
 import android.location.Location;
-import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -29,10 +30,11 @@ import com.puuga.opennote.model.Message;
  * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback,
-        LocationListener,
+public class MapFragment extends Fragment implements
+        OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
-        GoogleMap.OnCameraChangeListener {
+        GoogleMap.OnCameraChangeListener,
+        GoogleMap.OnMyLocationChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -130,34 +132,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         Log.d("GoogleMap", "Ready");
         mGoogleMap = googleMap;
         mGoogleMap.setMyLocationEnabled(true);
+
         mGoogleMap.setOnMapClickListener(this);
         mGoogleMap.setOnCameraChangeListener(this);
+        mGoogleMap.setOnMyLocationChangeListener(this);
+
+        mGoogleMap.getUiSettings().setScrollGesturesEnabled(false);
+        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
 
         mOnFragmentReady.OnFragmentReady();
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-
-    @Override
     public void onMapClick(LatLng latLng) {
+    }
+
+    public void moveCameraToMyLocation(Location location, float zoom) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        mGoogleMap.animateCamera(cameraUpdate);
+    }
+
+    public void moveCameraToMyLocation(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+        mGoogleMap.animateCamera(cameraUpdate);
     }
 
     void makeMarkers(Message[] messages) {
@@ -173,6 +173,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d("GoogleMap", cameraPosition.toString());
+    }
+
+    @Override
+    public void onMyLocationChange(Location location) {
+        moveCameraToMyLocation(location);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.puuga.opennote;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.SearchManager;
 import android.app.assist.AssistContent;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location mCurrentLocation;
+    Location mLastLocation;
     // Request code to use when launching the resolution activity
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     // Unique tag for the error dialog fragment
@@ -413,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void OnFragmentReady() {
         loadMessage();
+
     }
 
     @Override
@@ -448,18 +451,30 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        if (mLastLocation == null) {
+            mLastLocation = location;
+            mSectionsPagerAdapter.mapFragment.moveCameraToMyLocation(location, 15);
+        }
         mCurrentLocation = location;
+        if (mCurrentLocation.distanceTo(mLastLocation) > 100) {
+            // change position
+            mLastLocation = location;
+            // load new message
+            loadMessage();
+        }
         Log.d("location", location.toString());
     }
 
     @Override
     public void onProvideAssistData(Bundle data) {
+        String q = String.valueOf(mCurrentLocation.getLatitude()) + "," + String.valueOf(mCurrentLocation.getLongitude());
+        data.putString(SearchManager.QUERY, q);
         super.onProvideAssistData(data);
     }
 
     @Override
     public void onProvideAssistContent(AssistContent outContent) {
-        super.onProvideAssistContent(outContent);
+
 
         if (mCurrentLocation.hasAccuracy() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
@@ -477,6 +492,8 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("json_error", e.getMessage());
             }
         }
+
+        super.onProvideAssistContent(outContent);
     }
 
     /**

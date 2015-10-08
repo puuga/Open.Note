@@ -51,7 +51,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.ASSIST" />
                 <action android:name="android.intent.extra.ASSIST_CONTEXT" />
-                <category android:name="android.intent.category.DEFAULT"/>
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
