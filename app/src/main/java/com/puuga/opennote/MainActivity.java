@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -58,7 +57,6 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity implements
-        MapFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentReadyListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -104,6 +102,10 @@ public class MainActivity extends AppCompatActivity implements
 
     // widget
     FloatingActionButton fab;
+
+    Dialog denyLocationPermissionDialog;
+    Dialog requestLocationPermissionDialog;
+    Dialog submitMessageDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,11 +156,15 @@ public class MainActivity extends AppCompatActivity implements
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
                 makeSubmitMessageDialog().show();
+                if (submitMessageDialog == null) {
+                    submitMessageDialog = makeSubmitMessageDialog();
+                }
+                submitMessageDialog.show();
             }
         });
     }
 
-    void submitMessage(String message) {
+    void submitMessage(String message, final View view) {
         Log.d("submit", message);
         Log.d("location", mCurrentLocation.toString());
 
@@ -174,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements
                         .setAction("Action", null).show();
                 Log.d("submitted", message.toString());
                 loadMessage();
+
+                EditText edtMessage = ((EditText) view.findViewById(R.id.edt_message));
+                edtMessage.setText("");
             }
 
             @Override
@@ -195,8 +204,8 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 Message[] messages = response.body();
 //                Toast.makeText(getApplicationContext(), "response", Toast.LENGTH_SHORT).show();
-                Snackbar.make(fab, "Messages loaded", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(fab, "Messages loaded", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
                 Log.d("response", "messages count:" + String.valueOf(messages.length));
                 for (Message message : messages) {
                     Log.d("response", "messages :" + message.getMessage());
@@ -257,8 +266,9 @@ public class MainActivity extends AppCompatActivity implements
         builder.setView(v)
                 .setPositiveButton(R.string.publish, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        String message = ((EditText) v.findViewById(R.id.edt_message)).getText().toString();
-                        submitMessage(message);
+                        EditText edtMessage = ((EditText) v.findViewById(R.id.edt_message));
+                        String message = edtMessage.getText().toString();
+                        submitMessage(message, v);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -332,7 +342,10 @@ public class MainActivity extends AppCompatActivity implements
                         mGoogleApiClient, mLocationRequest, this);
             } else {
                 // Permission was denied or request was cancelled
-                makeDenyLocationPermissionDialog().show();
+                if (denyLocationPermissionDialog == null) {
+                    denyLocationPermissionDialog = makeDenyLocationPermissionDialog();
+                }
+                denyLocationPermissionDialog.show();
             }
         }
     }
@@ -389,7 +402,10 @@ public class MainActivity extends AppCompatActivity implements
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Display UI and wait for user interaction
-                makeRequestLocationPermissionDialog().show();
+                if (requestLocationPermissionDialog == null) {
+                    requestLocationPermissionDialog = makeRequestLocationPermissionDialog();
+                }
+                requestLocationPermissionDialog.show();
             } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -418,11 +434,6 @@ public class MainActivity extends AppCompatActivity implements
         // Obtain the shared Tracker instance.
         AnalyticsApplication application = (AnalyticsApplication) getApplication();
         mTracker = application.getDefaultTracker();
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
     @Override
