@@ -30,6 +30,7 @@ public class MapFragment extends Fragment implements
 
     GoogleMap mGoogleMap;
     boolean isCameraMoving;
+    boolean isCameraMovingFirstTime;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -99,9 +100,10 @@ public class MapFragment extends Fragment implements
     public void onMapClick(LatLng latLng) {
     }
 
-    public void moveCameraToMyLocation(Location location, float zoom) {
+    public void moveCameraToMyLocation(Location location, float zoom, boolean isCameraMovingFirstTime) {
         if (!isCameraMoving) {
             isCameraMoving = true;
+            this.isCameraMovingFirstTime = true;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
             mGoogleMap.animateCamera(cameraUpdate);
@@ -109,7 +111,7 @@ public class MapFragment extends Fragment implements
     }
 
     public void moveCameraToMyLocation(Location location) {
-        if (!isCameraMoving) {
+        if (!isCameraMoving && !isCameraMovingFirstTime) {
             isCameraMoving = true;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
@@ -122,10 +124,11 @@ public class MapFragment extends Fragment implements
         mGoogleMap.clear();
         for (Message message : messages) {
             LatLng latLng = new LatLng(message.getLat(), message.getLng());
+            String t = "@" + message.getUser().name + ": " + message.getMessage();
             mGoogleMap.addMarker(new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon96v2))
-                    .title(message.getMessage()));
+                    .title(t));
         }
     }
 
@@ -133,6 +136,7 @@ public class MapFragment extends Fragment implements
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d("GoogleMap", cameraPosition.toString());
         isCameraMoving = false;
+        isCameraMovingFirstTime = false;
     }
 
     @Override

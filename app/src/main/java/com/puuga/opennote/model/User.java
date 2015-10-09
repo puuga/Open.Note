@@ -48,6 +48,13 @@ public class User {
         return this;
     }
 
+    public String getUserPictureUrl() {
+        if (facebook_id==null) {
+            return null;
+        }
+        return "https://graph.facebook.com/" + facebook_id + "/picture?type=large";
+    }
+
     public String toString() {
         return "id: " + id
                 + ", firstname:" + firstname

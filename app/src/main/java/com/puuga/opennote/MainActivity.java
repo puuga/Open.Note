@@ -477,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         if (mLastLocation == null) {
             mLastLocation = location;
-            mSectionsPagerAdapter.mapFragment.moveCameraToMyLocation(location, 15);
+            mSectionsPagerAdapter.mapFragment.moveCameraToMyLocation(location, 15, true);
         }
         mCurrentLocation = location;
         if (mCurrentLocation.distanceTo(mLastLocation) > 100) {

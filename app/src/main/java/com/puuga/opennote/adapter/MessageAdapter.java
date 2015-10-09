@@ -5,8 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.puuga.opennote.R;
 import com.puuga.opennote.model.Message;
 
@@ -39,6 +41,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         holder.tvUser.setText(message.getUser().name);
         String latlng = message.getLat() + "," + message.getLng();
         holder.tvLatlng.setText(latlng);
+
+        // Load image
+        Glide.with(context)
+                .load(message.getUser().getUserPictureUrl())
+                .fitCenter()
+                .into(holder.ivUserPicture);
     }
 
     @Override
@@ -48,6 +56,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
 
+        public ImageView ivUserPicture;
         public TextView tvMessage;
         public TextView tvUser;
         public TextView tvLatlng;
@@ -55,6 +64,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public MessageViewHolder(View itemView) {
             super(itemView);
 
+            ivUserPicture = (ImageView) itemView.findViewById(R.id.iv_user_picture);
             tvMessage = (TextView) itemView.findViewById(R.id.tv_message);
             tvUser = (TextView) itemView.findViewById(R.id.tv_user);
             tvLatlng = (TextView) itemView.findViewById(R.id.tv_latlng);
