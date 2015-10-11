@@ -148,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private void initInstances() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setLogo(R.mipmap.ic_launcher);
+        toolbar.setLogoDescription(R.string.app_name);
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
