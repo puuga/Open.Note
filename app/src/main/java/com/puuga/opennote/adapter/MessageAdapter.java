@@ -14,6 +14,8 @@ import com.puuga.opennote.model.Message;
 
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
 /**
  * Created by siwaweswongcharoen on 10/8/2015 AD.
  */
@@ -45,7 +47,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         // Load image
         Glide.with(context)
                 .load(message.getUser().getUserPictureUrl())
-                .fitCenter()
+                .bitmapTransform(new CropCircleTransformation(context))
                 .into(holder.ivUserPicture);
     }
 

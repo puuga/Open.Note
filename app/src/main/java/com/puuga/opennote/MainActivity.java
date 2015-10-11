@@ -58,6 +58,7 @@ import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity implements
         MapFragment.OnFragmentReadyListener,
+        MessageFragment.OnMessageFragmentRefresh,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -155,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                makeSubmitMessageDialog().show();
                 if (submitMessageDialog == null) {
                     submitMessageDialog = makeSubmitMessageDialog();
                 }
@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 makeMarker(messages);
                 setAdapter(messages);
+                setSwipeLayoutStop();
             }
 
             @Override
@@ -230,11 +231,16 @@ public class MainActivity extends AppCompatActivity implements
         mSectionsPagerAdapter.messageFragment.setAdapter(messageList);
     }
 
+    void setSwipeLayoutStop() {
+        mSectionsPagerAdapter.messageFragment.swipeLayout.setRefreshing(false);
+    }
+
     private Dialog makeDenyLocationPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage(R.string.message_deny_location_permission)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
                         finish();
                     }
                 });
@@ -250,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                 REQUEST_LOCATION);
+                        dialog.dismiss();
                     }
                 });
         // Create the AlertDialog object and return it
@@ -269,10 +276,12 @@ public class MainActivity extends AppCompatActivity implements
                         EditText edtMessage = ((EditText) v.findViewById(R.id.edt_message));
                         String message = edtMessage.getText().toString();
                         submitMessage(message, v);
+                        dialog.dismiss();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
                     }
                 });
         // Create the AlertDialog object and return it
@@ -439,7 +448,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void OnFragmentReady() {
         loadMessage();
+    }
 
+    @Override
+    public void onMessageFragmentRefresh() {
+        loadMessage();
     }
 
     @Override
@@ -498,8 +511,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onProvideAssistContent(AssistContent outContent) {
-
-
         if (mCurrentLocation.hasAccuracy() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 JSONObject geo = new JSONObject()
