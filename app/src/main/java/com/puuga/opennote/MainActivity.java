@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -170,6 +171,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("submit", message);
         Log.d("location", mCurrentLocation.toString());
 
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("Submit message")
+                .build());
+
         String lat = String.valueOf(mCurrentLocation.getLatitude());
         String lng = String.valueOf(mCurrentLocation.getLongitude());
 
@@ -195,6 +201,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     void loadMessage() {
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("Load message")
+                .build());
+
         Call<Message[]> call = service.loadMessages();
         call.enqueue(new Callback<Message[]>() {
             @Override
@@ -380,10 +391,12 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_settings:
                 return true;
             case R.id.action_logout:
-                Intent i = new Intent(this, FacebookLoginActivity.class);
-                startActivity(i);
+                Intent iFacebookLoginActivity = new Intent(this, FacebookLoginActivity.class);
+                startActivity(iFacebookLoginActivity);
                 return true;
             case R.id.action_profile:
+                Intent iProfileActivity = new Intent(this, ProfileActivity.class);
+                startActivity(iProfileActivity);
                 return true;
         }
 

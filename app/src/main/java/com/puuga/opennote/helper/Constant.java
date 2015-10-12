@@ -15,4 +15,5 @@ public class Constant {
     public static final String API_MESSAGE = "http://128.199.208.34/open.note/messages.php";
     public static final String API_REGISTER_USER = "http://128.199.208.34/open.note/register_user.php";
     public static final String API_SUBMIT_MESSAGE = "http://128.199.208.34/open.note/submit_message.php";
+    public static final String API_USER = "http://128.199.208.34/open.note/user.php";
 }

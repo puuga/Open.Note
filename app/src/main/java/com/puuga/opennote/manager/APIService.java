@@ -10,6 +10,7 @@ import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Query;
 
 /**
  * Created by siwaweswongcharoen on 10/5/2015 AD.
@@ -36,4 +37,7 @@ public interface APIService {
                             @Field("message") String message,
                             @Field("lat") String lat,
                             @Field("lng") String lng);
+
+    @GET(Constant.API_USER)
+    Call<User> me(@Query("id") String id);
 }

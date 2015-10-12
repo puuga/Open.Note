@@ -105,6 +105,18 @@
         </receiver>
 
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.puuga.opennote.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
