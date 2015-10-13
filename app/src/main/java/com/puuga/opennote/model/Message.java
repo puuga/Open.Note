@@ -1,5 +1,11 @@
 package com.puuga.opennote.model;
 
+import android.util.Log;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by siwaweswongcharoen on 10/5/2015 AD.
  */
@@ -9,6 +15,7 @@ public class Message {
     private float lat;
     private float lng;
     private User user;
+    private String created_at;
 
     public String getId() {
         return id;
@@ -50,7 +57,30 @@ public class Message {
         return user;
     }
 
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public Date getDateCreatedAt() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(created_at);
+        } catch (ParseException e) {
+            Log.d("ParseException", e.getMessage());
+        }
+        return date;
+    }
+
     public String toString() {
-        return "message:" + message + ", lat:" + lat + ", lng:" + lng + ", user:" + user;
+        return "message:" + message
+                + ", lat:" + lat
+                + ", lng:" + lng
+                + ", created_at:" + created_at
+                + ", user:" + user;
     }
 }

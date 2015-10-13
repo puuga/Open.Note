@@ -91,5 +91,4 @@ public class ProfileActivity extends AppCompatActivity {
                 .centerCrop()
                 .into(ivUserPictureHeader);
     }
-
 }

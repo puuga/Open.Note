@@ -43,11 +43,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         holder.tvUser.setText(message.getUser().name);
         String latlng = message.getLat() + "," + message.getLng();
         holder.tvLatlng.setText(latlng);
+        holder.tvCreatedAt.setText(message.getCreated_at());
 
         // Load image
         Glide.with(context)
                 .load(message.getUser().getUserPictureUrl())
                 .bitmapTransform(new CropCircleTransformation(context))
+                .crossFade()
                 .into(holder.ivUserPicture);
     }
 
@@ -62,6 +64,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView tvMessage;
         public TextView tvUser;
         public TextView tvLatlng;
+        public TextView tvCreatedAt;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -70,6 +73,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             tvMessage = (TextView) itemView.findViewById(R.id.tv_message);
             tvUser = (TextView) itemView.findViewById(R.id.tv_user);
             tvLatlng = (TextView) itemView.findViewById(R.id.tv_latlng);
+            tvCreatedAt = (TextView) itemView.findViewById(R.id.tv_create_at);
         }
 
     }

@@ -12,6 +12,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
+import com.puuga.opennote.model.Message;
 import com.puuga.opennote.model.User;
 
 import retrofit.Call;
@@ -26,6 +27,8 @@ public class ProfileActivityFragment extends Fragment {
 
     TextView tvUserName;
     TextView tvUserEmail;
+    TextView tvMessagesCount;
+    TextView tvAllMessages;
 
     User me;
 
@@ -76,13 +79,24 @@ public class ProfileActivityFragment extends Fragment {
     private void initInstances(View view) {
         tvUserName = (TextView) view.findViewById(R.id.tv_user_name);
         tvUserEmail = (TextView) view.findViewById(R.id.tv_user_email);
+        tvMessagesCount = (TextView) view.findViewById(R.id.tv_messages_count);
+        tvAllMessages = (TextView) view.findViewById(R.id.tv_all_messages);
     }
 
     private void bindUserToWidget() {
         ((ProfileActivity) getActivity()).bindUserToWidget(me);
-        
+
         tvUserName.setText(me.name);
         tvUserEmail.setText(me.email);
+        tvMessagesCount.setText(getString(R.string.messages_count, me.messages.length));
+        String t = "";
+        for (Message message : me.messages) {
+            t = t.concat(getString(R.string.messages_info,
+                    message.getMessage(),
+                    message.getLat() + "," + message.getLng(),
+                    message.getCreated_at()));
+        }
+        tvAllMessages.setText(t);
     }
 
     void getMyProfile() {

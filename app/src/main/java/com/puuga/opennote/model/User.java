@@ -10,6 +10,7 @@ public class User {
     public String name;
     public String email;
     public String facebook_id;
+    public Message[] messages;
 
     private User() {
     }
@@ -48,19 +49,27 @@ public class User {
         return this;
     }
 
+    public User setMessage(Message[] messages) {
+        this.messages = messages;
+        return this;
+    }
+
     public String getUserPictureUrl() {
-        if (facebook_id==null) {
+        if (facebook_id == null) {
             return null;
         }
         return "https://graph.facebook.com/" + facebook_id + "/picture?type=large";
     }
 
     public String toString() {
+        int messagesCount = messages == null ? -1 : messages.length;
         return "id: " + id
                 + ", firstname:" + firstname
                 + ", lastname: " + lastname
                 + ", name: " + name
                 + ", email: " + email
-                + ", facebookId: " + facebook_id;
+                + ", facebookId: " + facebook_id
+                + ", userPictureUrl: " + getUserPictureUrl()
+                + ", messages:" + messagesCount;
     }
 }

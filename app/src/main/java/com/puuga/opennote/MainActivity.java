@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements
 //                        .setAction("Action", null).show();
                 Log.d("response", "messages count:" + String.valueOf(messages.length));
                 for (Message message : messages) {
-                    Log.d("response", "messages :" + message.getMessage());
+                    Log.d("response", "messages :" + message.toString());
                 }
                 makeMarker(messages);
                 setAdapter(messages);
