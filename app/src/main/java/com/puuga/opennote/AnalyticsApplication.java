@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.puuga.opennote.helper.Constant;
 import com.puuga.opennote.helper.SettingHelper;
@@ -28,9 +27,10 @@ public class AnalyticsApplication extends Application implements
 
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            AnalyticsTrackers.initialize(this);
+            AnalyticsTrackers analytics = AnalyticsTrackers.getInstance();
             // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            mTracker = analytics.newTracker(R.xml.app_tracker);
+            mTracker = analytics.get(AnalyticsTrackers.Target.APP);
         }
         return mTracker;
     }

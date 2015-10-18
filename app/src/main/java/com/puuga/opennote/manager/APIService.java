@@ -20,6 +20,10 @@ public interface APIService {
     @GET(Constant.API_MESSAGE)
     Call<Message[]> loadMessages();
 
+    @GET(Constant.API_MESSAGE)
+    Call<Message[]> loadMessages(@Query("lat") String lat,
+                                 @Query("lng") String lng);
+
     @POST(Constant.API_REGISTER_USER)
     Call<User> registerUser(@Body User user);
 

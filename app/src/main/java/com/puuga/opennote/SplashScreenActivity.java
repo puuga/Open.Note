@@ -13,7 +13,7 @@ import io.fabric.sdk.android.Fabric;
 public class SplashScreenActivity extends AppCompatActivity {
 
     // Splash screen timer
-    private static final int SPLASH_TIME_OUT = 2000;
+    private static final int SPLASH_TIME_OUT = 1500;
 
     // SharedPreferences
     SettingHelper settingHelper;

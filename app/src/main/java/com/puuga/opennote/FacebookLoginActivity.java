@@ -226,7 +226,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
 
-        mTracker.setScreenName("First Activity");
+        mTracker.setScreenName("Facebook Login Activity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 

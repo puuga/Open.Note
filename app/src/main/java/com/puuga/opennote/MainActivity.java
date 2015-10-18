@@ -322,6 +322,9 @@ public class MainActivity extends AppCompatActivity implements
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
 
+        mTracker.setScreenName("Main Activity");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         // check login
         if (!settingHelper.isFacebookLogin()) {
             Intent i = new Intent(this, FacebookLoginActivity.class);
