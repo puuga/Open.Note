@@ -459,8 +459,13 @@ public class MainActivity extends AppCompatActivity implements
 
     private void initGoogleAnalytic() {
         // Obtain the shared Tracker instance.
-        AnalyticsApplication application = (AnalyticsApplication) getApplication();
-        mTracker = application.getDefaultTracker();
+//        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+//        mTracker = application.getDefaultTracker();
+
+        AnalyticsTrackers.initialize(this);
+        AnalyticsTrackers analytics = AnalyticsTrackers.getInstance();
+        // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+        mTracker = analytics.get(AnalyticsTrackers.Target.APP);
     }
 
     @Override
@@ -598,6 +603,8 @@ public class MainActivity extends AppCompatActivity implements
             }
             return null;
         }
+
+
     }
 
     /**
