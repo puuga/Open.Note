@@ -1,5 +1,9 @@
 package com.puuga.opennote.helper;
 
+import android.content.Context;
+
+import com.puuga.opennote.R;
+
 /**
  * Created by siwaweswongcharoen on 10/4/2015 AD.
  */
@@ -16,4 +20,9 @@ public class Constant {
     public static final String API_REGISTER_USER = "http://128.199.208.34/open.note/register_user.php";
     public static final String API_SUBMIT_MESSAGE = "http://128.199.208.34/open.note/submit_message.php";
     public static final String API_USER = "http://128.199.208.34/open.note/user.php";
+    private static Context context;
+
+    public static String APP_NAME( Context context) {
+        return context.getResources().getString(R.string.app_name);
+    }
 }

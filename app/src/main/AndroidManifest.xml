@@ -117,6 +117,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.puuga.opennote.MainActivity" />
         </activity>
+
+        <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
     </application>
 
 </manifest>

@@ -40,6 +40,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.puuga.opennote.helper.Constant;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 import com.puuga.opennote.model.Message;
@@ -102,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements
     // Retrofit
     APIService service;
 
+    // Mixpanel
+    MixpanelAPI mixpanelAPI;
+
     // widget
     FloatingActionButton fab;
 
@@ -123,10 +128,17 @@ public class MainActivity extends AppCompatActivity implements
 
         initRetrofit();
 
+        initMixpanelAPI();
+
         createLocationRequest();
         buildGoogleApiClient();
 
         initPager();
+    }
+
+    private void initMixpanelAPI() {
+        String projectToken = getString(R.string.mixpanel_token);
+        mixpanelAPI = MixpanelAPI.getInstance(this, projectToken);
     }
 
     private void initPager() {
@@ -205,6 +217,17 @@ public class MainActivity extends AppCompatActivity implements
                 .setCategory("Action")
                 .setAction("Load message")
                 .build());
+
+        try {
+            JSONObject props = new JSONObject();
+            props.put("user", settingHelper.getFacebookName());
+            if (mCurrentLocation != null) {
+                props.put("location", mCurrentLocation.toString());
+            }
+            mixpanelAPI.track("MainActivity - loadMessage called", props);
+        } catch (JSONException e) {
+            Log.e(Constant.APP_NAME(this), "Unable to add properties to JSONObject", e);
+        }
 
         Call<Message[]> call = service.loadMessages();
         call.enqueue(new Callback<Message[]>() {
