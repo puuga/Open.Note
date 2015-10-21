@@ -18,7 +18,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+import com.puuga.opennote.helper.Constant;
+import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.model.Message;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MapFragment extends Fragment implements
         OnMapReadyCallback,
@@ -31,6 +37,14 @@ public class MapFragment extends Fragment implements
     GoogleMap mGoogleMap;
     boolean isCameraMoving;
     boolean isCameraMovingFirstTime;
+
+    Location myLocation;
+
+    // Mixpanel
+    MixpanelAPI mixpanelAPI;
+
+    // SharedPreferences
+    SettingHelper settingHelper;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -49,6 +63,10 @@ public class MapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         isCameraMoving = false;
+
+        initSharedPreferences();
+        initMixpanelAPI();
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -89,9 +107,9 @@ public class MapFragment extends Fragment implements
         mGoogleMap.setOnCameraChangeListener(this);
         mGoogleMap.setOnMyLocationChangeListener(this);
 
-        mGoogleMap.getUiSettings().setScrollGesturesEnabled(false);
+//        mGoogleMap.getUiSettings().setScrollGesturesEnabled(false);
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
+//        mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
 
         mOnFragmentReady.OnFragmentReady();
     }
@@ -101,9 +119,10 @@ public class MapFragment extends Fragment implements
     }
 
     public void moveCameraToMyLocation(Location location, float zoom, boolean isCameraMovingFirstTime) {
+        myLocation = location;
         if (!isCameraMoving) {
             isCameraMoving = true;
-            this.isCameraMovingFirstTime = true;
+            this.isCameraMovingFirstTime = isCameraMovingFirstTime;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
             mGoogleMap.animateCamera(cameraUpdate);
@@ -111,6 +130,7 @@ public class MapFragment extends Fragment implements
     }
 
     public void moveCameraToMyLocation(Location location) {
+        myLocation = location;
         if (!isCameraMoving && !isCameraMovingFirstTime) {
             isCameraMoving = true;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -136,16 +156,45 @@ public class MapFragment extends Fragment implements
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d("GoogleMap", cameraPosition.toString());
         isCameraMoving = false;
-        isCameraMovingFirstTime = false;
+        if (cameraPosition.zoom == 15) {
+            isCameraMovingFirstTime = false;
+        }
+
+        if (cameraPosition.zoom < Constant.MAP_MIN_ZOOM) {
+            LatLng latLng = cameraPosition.target;
+            CameraUpdate cameraUpdate = CameraUpdateFactory
+                    .newLatLngZoom(latLng, Constant.MAP_MIN_ZOOM);
+            mGoogleMap.animateCamera(cameraUpdate);
+        }
+
+        try {
+            JSONObject props = new JSONObject();
+            props.put("user", settingHelper.getFacebookName());
+            props.put("zoom", cameraPosition.zoom);
+            props.put("latLng", cameraPosition.target.toString());
+            mixpanelAPI.track("MapFragment - onCameraChange called", props);
+        } catch (JSONException e) {
+            Log.e(Constant.APP_NAME(getActivity()), "Unable to add properties to JSONObject", e);
+        }
     }
 
     @Override
     public void onMyLocationChange(Location location) {
-        moveCameraToMyLocation(location);
+        // moveCameraToMyLocation(location);
+        myLocation = location;
     }
 
     public interface OnFragmentReadyListener {
         public void OnFragmentReady();
+    }
+
+    private void initMixpanelAPI() {
+        mixpanelAPI = MixpanelAPI.getInstance(getActivity(), getString(R.string.mixpanel_token));
+    }
+
+    private void initSharedPreferences() {
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        settingHelper = application.getSettingHelper();
     }
 
 }

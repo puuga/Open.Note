@@ -22,8 +22,8 @@ android {
         applicationId "com.puuga.opennote"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 46
-        versionName '1.5.6'
+        versionCode 47
+        versionName '1.5.7'
     }
     buildTypes {
         release {

@@ -137,8 +137,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initMixpanelAPI() {
-        String projectToken = getString(R.string.mixpanel_token);
-        mixpanelAPI = MixpanelAPI.getInstance(this, projectToken);
+        mixpanelAPI = MixpanelAPI.getInstance(this, getString(R.string.mixpanel_token));
     }
 
     private void initPager() {
