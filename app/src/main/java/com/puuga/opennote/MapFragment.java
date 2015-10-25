@@ -143,12 +143,12 @@ public class MapFragment extends Fragment implements
     void makeMarkers(Message[] messages) {
         mGoogleMap.clear();
         for (Message message : messages) {
-            LatLng latLng = new LatLng(message.getLat(), message.getLng());
-            String t = "@" + message.getUser().name + ": " + message.getMessage();
+            LatLng latLng = new LatLng(message.lat, message.lng);
             mGoogleMap.addMarker(new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon96v2))
-                    .title(t));
+                    .title("@" + message.user.name)
+                    .snippet(message.message));
         }
     }
 

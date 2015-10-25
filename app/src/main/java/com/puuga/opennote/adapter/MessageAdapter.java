@@ -39,15 +39,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         final Message message = messageList.get(position);
-        holder.tvMessage.setText(message.getMessage());
-        holder.tvUser.setText(message.getUser().name);
-        String latlng = message.getLat() + "," + message.getLng();
+        holder.tvMessage.setText(message.message);
+        holder.tvUser.setText(message.user.name);
+        String latlng = message.lat + "," + message.lng;
         holder.tvLatlng.setText(latlng);
-        holder.tvCreatedAt.setText(message.getCreated_at());
+        holder.tvCreatedAt.setText(message.created_at);
 
         // Load image
         Glide.with(context)
-                .load(message.getUser().getUserPictureUrl())
+                .load(message.user.getUserPictureUrl())
                 .bitmapTransform(new CropCircleTransformation(context))
                 .crossFade()
                 .into(holder.ivUserPicture);
@@ -76,5 +76,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             tvCreatedAt = (TextView) itemView.findViewById(R.id.tv_create_at);
         }
 
+    }
+
+    public class MeViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView tvUserName;
+        public TextView tvUserEmail;
+
+        public MeViewHolder(View itemView) {
+            super(itemView);
+
+            tvUserName = (TextView) itemView.findViewById(R.id.tv_user_name);
+            tvUserEmail = (TextView) itemView.findViewById(R.id.tv_user_email);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.puuga.opennote;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.app.assist.AssistContent;
@@ -11,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -27,9 +29,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.appevents.AppEventsLogger;
@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements
     Dialog requestLocationPermissionDialog;
     Dialog submitMessageDialog;
 
+    boolean isMessagesLoaded;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements
         buildGoogleApiClient();
 
         initPager();
+
+        isMessagesLoaded = false;
     }
 
     private void initMixpanelAPI() {
@@ -212,6 +216,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     void loadMessage() {
+        if (mCurrentLocation == null) {
+            return;
+        }
+
         mTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("Action")
                 .setAction("Load message")
@@ -228,7 +236,10 @@ public class MainActivity extends AppCompatActivity implements
             Log.e(Constant.APP_NAME(this), "Unable to add properties to JSONObject", e);
         }
 
-        Call<Message[]> call = service.loadMessages();
+        String lat = String.valueOf(mCurrentLocation.getLatitude());
+        String lng = String.valueOf(mCurrentLocation.getLongitude());
+        Log.d("location", mCurrentLocation.toString());
+        Call<Message[]> call = service.loadMessages(lat,lng);
         call.enqueue(new Callback<Message[]>() {
             @Override
             public void onResponse(Response<Message[]> response, Retrofit retrofit) {
@@ -304,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements
         LayoutInflater inflater = getLayoutInflater();
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
+        @SuppressLint("InflateParams")
         final View v = inflater.inflate(R.layout.dialog_submit_message, null);
         builder.setView(v)
                 .setPositiveButton(R.string.publish, new DialogInterface.OnClickListener() {
@@ -380,7 +392,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 1
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -413,8 +427,8 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         switch (id) {
-            case R.id.action_settings:
-                return true;
+//            case R.id.action_settings:
+//                return true;
             case R.id.action_logout:
                 Intent iFacebookLoginActivity = new Intent(this, FacebookLoginActivity.class);
                 startActivity(iFacebookLoginActivity);
@@ -480,10 +494,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initGoogleAnalytic() {
-        // Obtain the shared Tracker instance.
-//        AnalyticsApplication application = (AnalyticsApplication) getApplication();
-//        mTracker = application.getDefaultTracker();
-
         AnalyticsTrackers.initialize(this);
         AnalyticsTrackers analytics = AnalyticsTrackers.getInstance();
         // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
@@ -537,7 +547,15 @@ public class MainActivity extends AppCompatActivity implements
             mLastLocation = location;
             mSectionsPagerAdapter.mapFragment.moveCameraToMyLocation(location, 15, true);
         }
+
+
         mCurrentLocation = location;
+
+        if (!isMessagesLoaded) {
+            isMessagesLoaded = true;
+            loadMessage();
+        }
+
         if (mCurrentLocation.distanceTo(mLastLocation) > 100) {
             // change position
             mLastLocation = location;
@@ -627,40 +645,5 @@ public class MainActivity extends AppCompatActivity implements
         }
 
 
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
     }
 }

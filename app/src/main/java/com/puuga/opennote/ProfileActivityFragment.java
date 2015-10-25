@@ -1,7 +1,11 @@
 package com.puuga.opennote;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +14,15 @@ import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.puuga.opennote.adapter.ProfileAdapter;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 import com.puuga.opennote.model.Message;
 import com.puuga.opennote.model.User;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -23,7 +32,11 @@ import retrofit.Retrofit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ProfileActivityFragment extends Fragment {
+public class ProfileActivityFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+
+    SwipeRefreshLayout swipeLayout;
+    private RecyclerView recyclerView;
+    private List<Message> messageList;
 
     TextView tvUserName;
     TextView tvUserEmail;
@@ -71,32 +84,40 @@ public class ProfileActivityFragment extends Fragment {
     }
 
     private void initGoogleAnalytic() {
-        // Obtain the shared Tracker instance.
-        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
+        AnalyticsTrackers.initialize(getActivity());
+        AnalyticsTrackers analytics = AnalyticsTrackers.getInstance();
+        // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+        mTracker = analytics.get(AnalyticsTrackers.Target.APP);
     }
 
     private void initInstances(View view) {
-        tvUserName = (TextView) view.findViewById(R.id.tv_user_name);
-        tvUserEmail = (TextView) view.findViewById(R.id.tv_user_email);
-        tvMessagesCount = (TextView) view.findViewById(R.id.tv_messages_count);
-        tvAllMessages = (TextView) view.findViewById(R.id.tv_all_messages);
+        messageList = new ArrayList<>();
+        ProfileAdapter profileAdapter = new ProfileAdapter(getActivity(), messageList);
+
+        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_layout);
+        swipeLayout.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setRefreshing(true);
+
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_message);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(profileAdapter);
+    }
+
+    public void setAdapter(List<Message> messageList) {
+        this.messageList.clear();
+        this.messageList.addAll(messageList);
+
+        ((ProfileAdapter) recyclerView.getAdapter()).setUser(me.name, me.email, me.getUserPictureUrl());
+        recyclerView.getAdapter().notifyDataSetChanged();
+        swipeLayout.setRefreshing(false);
     }
 
     private void bindUserToWidget() {
         ((ProfileActivity) getActivity()).bindUserToWidget(me);
 
-        tvUserName.setText(me.name);
-        tvUserEmail.setText(me.email);
-        tvMessagesCount.setText(getString(R.string.messages_count, me.messages.length));
-        String t = "";
-        for (Message message : me.messages) {
-            t = t.concat(getString(R.string.messages_info,
-                    message.getMessage(),
-                    message.getLat() + "," + message.getLng(),
-                    message.getCreated_at()));
-        }
-        tvAllMessages.setText(t);
+        List<Message> messageList = new ArrayList<>(Arrays.asList(me.messages));
+        setAdapter(messageList);
     }
 
     void getMyProfile() {
@@ -121,5 +142,10 @@ public class ProfileActivityFragment extends Fragment {
 
             }
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        getMyProfile();
     }
 }
