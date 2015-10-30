@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements
         String lat = String.valueOf(mCurrentLocation.getLatitude());
         String lng = String.valueOf(mCurrentLocation.getLongitude());
         Log.d("location", mCurrentLocation.toString());
-        Call<Message[]> call = service.loadMessages(lat,lng);
+        Call<Message[]> call = service.loadMessages(lat, lng);
         call.enqueue(new Callback<Message[]>() {
             @Override
             public void onResponse(Response<Message[]> response, Retrofit retrofit) {
@@ -551,12 +551,12 @@ public class MainActivity extends AppCompatActivity implements
 
         mCurrentLocation = location;
 
-        if (!isMessagesLoaded) {
+        if (!isMessagesLoaded && mCurrentLocation.getAccuracy() < 100) {
             isMessagesLoaded = true;
             loadMessage();
         }
 
-        if (mCurrentLocation.distanceTo(mLastLocation) > 100) {
+        if (mCurrentLocation.distanceTo(mLastLocation) > 200) {
             // change position
             mLastLocation = location;
             // load new message
