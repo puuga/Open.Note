@@ -23,6 +23,10 @@ public class Constant {
 
     public static final float MAP_MIN_ZOOM = 5f;
 
+    public static final String CAMERA_ZOOM = "CAMERA_ZOOM";
+    public static final String CAMERA_LAT = "CAMERA_LAT";
+    public static final String CAMERA_LNG = "CAMERA_LNG";
+
     public static String APP_NAME( Context context) {
         return context.getResources().getString(R.string.app_name);
     }

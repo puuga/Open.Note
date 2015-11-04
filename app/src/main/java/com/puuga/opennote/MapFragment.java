@@ -34,7 +34,13 @@ public class MapFragment extends Fragment implements
 
     private OnFragmentReadyListener mOnFragmentReady;
 
+    boolean isRestore = false;
+    float zoom;
+    double lat;
+    double lng;
+
     GoogleMap mGoogleMap;
+    CameraPosition mCameraPosition;
     boolean isCameraMoving;
     boolean isCameraMovingFirstTime;
 
@@ -77,6 +83,7 @@ public class MapFragment extends Fragment implements
         // Inflate the layout for this fragment
         // Setup map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fg_map);
+
         mapFragment.getMapAsync(this);
     }
 
@@ -100,6 +107,7 @@ public class MapFragment extends Fragment implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("GoogleMap", "Ready");
+
         mGoogleMap = googleMap;
         mGoogleMap.setMyLocationEnabled(true);
 
@@ -110,6 +118,12 @@ public class MapFragment extends Fragment implements
 //        mGoogleMap.getUiSettings().setScrollGesturesEnabled(false);
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
 //        mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
+
+        if (isRestore) {
+            LatLng latLng = new LatLng(lat, lng);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+            mGoogleMap.moveCamera(cameraUpdate);
+        }
 
         mOnFragmentReady.OnFragmentReady();
     }
@@ -155,6 +169,8 @@ public class MapFragment extends Fragment implements
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d("GoogleMap", cameraPosition.toString());
+        mCameraPosition = cameraPosition;
+
         isCameraMoving = false;
         if (cameraPosition.zoom == 15) {
             isCameraMovingFirstTime = false;
@@ -182,6 +198,31 @@ public class MapFragment extends Fragment implements
     public void onMyLocationChange(Location location) {
         // moveCameraToMyLocation(location);
         myLocation = location;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
+    }
+
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        zoom = savedInstanceState.getFloat(Constant.CAMERA_ZOOM);
+        lat = savedInstanceState.getDouble(Constant.CAMERA_LAT);
+        lng = savedInstanceState.getDouble(Constant.CAMERA_LNG);
+        isRestore = true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putFloat(Constant.CAMERA_ZOOM, mCameraPosition.zoom);
+        outState.putDouble(Constant.CAMERA_LAT, mCameraPosition.target.latitude);
+        outState.putDouble(Constant.CAMERA_LNG, mCameraPosition.target.longitude);
     }
 
     public interface OnFragmentReadyListener {
