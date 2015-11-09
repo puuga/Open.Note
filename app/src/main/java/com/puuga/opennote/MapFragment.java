@@ -1,6 +1,7 @@
 package com.puuga.opennote;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.puuga.opennote.helper.Constant;
 import com.puuga.opennote.helper.SettingHelper;
@@ -134,7 +137,7 @@ public class MapFragment extends Fragment implements
 
     public void moveCameraToMyLocation(Location location, float zoom, boolean isCameraMovingFirstTime) {
         myLocation = location;
-        if (!isCameraMoving) {
+        if (!isCameraMoving && mGoogleMap != null) {
             isCameraMoving = true;
             this.isCameraMovingFirstTime = isCameraMovingFirstTime;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -145,7 +148,7 @@ public class MapFragment extends Fragment implements
 
     public void moveCameraToMyLocation(Location location) {
         myLocation = location;
-        if (!isCameraMoving && !isCameraMovingFirstTime) {
+        if (!isCameraMoving && !isCameraMovingFirstTime && mGoogleMap != null) {
             isCameraMoving = true;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
@@ -155,6 +158,9 @@ public class MapFragment extends Fragment implements
     }
 
     void makeMarkers(Message[] messages) {
+        if (mGoogleMap == null) {
+            return;
+        }
         mGoogleMap.clear();
         for (Message message : messages) {
             LatLng latLng = new LatLng(message.lat, message.lng);
@@ -164,6 +170,22 @@ public class MapFragment extends Fragment implements
                     .title("@" + message.user.name)
                     .snippet(message.message));
         }
+    }
+
+    void drawBuffer(Location location) {
+        // Instantiates a new Polygon object and adds points to define a rectangle
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        PolygonOptions rectOptions = new PolygonOptions()
+                .add(new LatLng(lat-0.5, lng+0.5),
+                        new LatLng(lat+0.5, lng+0.5),
+                        new LatLng(lat+0.5, lng-0.5),
+                        new LatLng(lat-0.5, lng-0.5),
+                        new LatLng(lat-0.5, lng+0.5))
+                .strokeColor(Color.RED);
+
+        // Get back the mutable Polygon
+        Polygon polygon = mGoogleMap.addPolygon(rectOptions);
     }
 
     @Override

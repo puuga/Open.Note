@@ -80,6 +80,9 @@ public class MessageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     public void setAdapter(List<Message> messageList) {
+        if (this.messageList == null || recyclerView == null) {
+            initInstances(getView());
+        }
         this.messageList.clear();
         this.messageList.addAll(messageList);
 

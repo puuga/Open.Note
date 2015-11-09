@@ -257,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d("response", "messages :" + message.toString());
                 }
                 makeMarker(messages);
+                drawBuffer(mCurrentLocation);
                 setAdapter(messages);
                 setSwipeLayoutStop();
             }
@@ -270,6 +271,10 @@ public class MainActivity extends AppCompatActivity implements
 
     void makeMarker(Message[] messages) {
         mSectionsPagerAdapter.mapFragment.makeMarkers(messages);
+    }
+
+    void drawBuffer(Location location) {
+        mSectionsPagerAdapter.mapFragment.drawBuffer(location);
     }
 
     void setAdapter(Message[] messages) {
@@ -620,11 +625,16 @@ public class MainActivity extends AppCompatActivity implements
             switch (position) {
                 case 0:
                     fab.hide();
+                    mapFragment = MapFragment.newInstance();
+
                     return mapFragment;
-                default:
+                case 1:
                     fab.show();
+                    messageFragment = MessageFragment.newInstance();
+
                     return messageFragment;
             }
+            return null;
         }
 
         @Override
