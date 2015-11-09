@@ -177,12 +177,12 @@ public class MapFragment extends Fragment implements
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         PolygonOptions rectOptions = new PolygonOptions()
-                .add(new LatLng(lat-0.5, lng+0.5),
-                        new LatLng(lat+0.5, lng+0.5),
-                        new LatLng(lat+0.5, lng-0.5),
-                        new LatLng(lat-0.5, lng-0.5),
-                        new LatLng(lat-0.5, lng+0.5))
-                .strokeColor(Color.RED);
+                .add(new LatLng(lat - 0.5, lng + 0.5),
+                        new LatLng(lat + 0.5, lng + 0.5),
+                        new LatLng(lat + 0.5, lng - 0.5),
+                        new LatLng(lat - 0.5, lng - 0.5),
+                        new LatLng(lat - 0.5, lng + 0.5))
+                .strokeColor(Color.parseColor("#ff4040"));
 
         // Get back the mutable Polygon
         Polygon polygon = mGoogleMap.addPolygon(rectOptions);
