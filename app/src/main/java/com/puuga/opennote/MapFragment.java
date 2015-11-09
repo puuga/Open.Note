@@ -17,6 +17,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
@@ -173,6 +175,10 @@ public class MapFragment extends Fragment implements
     }
 
     void drawBuffer(Location location) {
+        drawCircleBuffer(location);
+    }
+
+    void drawRectangleBuffer(Location location) {
         // Instantiates a new Polygon object and adds points to define a rectangle
         double lat = location.getLatitude();
         double lng = location.getLongitude();
@@ -186,6 +192,19 @@ public class MapFragment extends Fragment implements
 
         // Get back the mutable Polygon
         Polygon polygon = mGoogleMap.addPolygon(rectOptions);
+    }
+
+    void drawCircleBuffer(Location location) {
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        // Instantiates a new CircleOptions object and defines the center and radius
+        CircleOptions circleOptions = new CircleOptions()
+                .center(new LatLng(lat, lng))
+                .radius(50000) // In meters
+                .strokeColor(Color.parseColor("#ff4040"));
+
+        // Get back the mutable Circle
+        Circle circle = mGoogleMap.addCircle(circleOptions);
     }
 
     @Override

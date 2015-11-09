@@ -270,7 +270,22 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     void makeMarker(Message[] messages) {
+        if (messages.length == 0) {
+            notiFirstPerson();
+        }
         mSectionsPagerAdapter.mapFragment.makeMarkers(messages);
+    }
+
+    private void notiFirstPerson() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage(R.string.yelp_first_person)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        // Create the AlertDialog object and show it
+        builder.create().show();
     }
 
     void drawBuffer(Location location) {

@@ -17,6 +17,7 @@
     <string name="desc_user_profile_picture">user\'s profile picture</string>
     <string name="messages_count">%1$d messages</string>
     <string name="messages_info">%1$s\n@%2$s\n%3$s\n\n</string>
+    <string name="yelp_first_person">Yelp! you are the first person here.\nJust not it.</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
