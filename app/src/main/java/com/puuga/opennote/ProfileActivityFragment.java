@@ -116,7 +116,12 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
     private void bindUserToWidget() {
         ((ProfileActivity) getActivity()).bindUserToWidget(me);
 
-        List<Message> messageList = new ArrayList<>(Arrays.asList(me.messages));
+        List<Message> messageList;
+        if (me.messages == null) {
+            messageList = new ArrayList<>();
+        } else {
+            messageList = new ArrayList<>(Arrays.asList(me.messages));
+        }
         setAdapter(messageList);
     }
 
