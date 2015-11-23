@@ -31,10 +31,25 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
     private static final int TYPE_PROFILE = 1;
     private static final int TYPE_MESSAGE = 2;
 
-    public ProfileAdapter(Context context, List<Message> messageList) {
+    public ProfileAdapterLongClickListener adapterLongClickListener;
+
+    public ProfileAdapter(Context context,
+                          List<Message> messageList,
+                          ProfileAdapterLongClickListener adapterLongClickListener) {
         this.context = context;
         this.messageList = messageList;
+        this.adapterLongClickListener = adapterLongClickListener;
     }
+
+    public interface ProfileAdapterLongClickListener {
+        void recyclerViewLongClick(String messageID);
+    }
+
+    //listener passed to viewHolder
+    public interface MessageLongClickListener {
+        void messageOnLongClick(String messageID);
+    }
+
 
     @Override
     public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -44,7 +59,13 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
                         .from(context).inflate(R.layout.card_me, parent, false));
             case TYPE_MESSAGE:
                 return new MessageViewHolder(LayoutInflater
-                        .from(context).inflate(R.layout.card_message, parent, false));
+                        .from(context).inflate(R.layout.card_message, parent, false),
+                        new MessageLongClickListener() {
+                            @Override
+                            public void messageOnLongClick(String messageID) {
+                                adapterLongClickListener.recyclerViewLongClick(messageID);
+                            }
+                        });
         }
         return null;
     }
@@ -89,6 +110,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
         String latlng = message.lat + "," + message.lng;
         holder.tvLatlng.setText(latlng);
         holder.tvCreatedAt.setText(message.created_at);
+        holder.tvMessageId.setText(message.id);
 
         // Load image
         Glide.with(context)
@@ -103,15 +125,17 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
         return messageList == null ? 0 : messageList.size()+1;
     }
 
-    public class MessageViewHolder extends MainViewHolder {
+    public class MessageViewHolder extends MainViewHolder implements View.OnLongClickListener {
 
         public ImageView ivUserPicture;
         public TextView tvMessage;
         public TextView tvUser;
         public TextView tvLatlng;
         public TextView tvCreatedAt;
+        public MessageLongClickListener messageLongClickListener;
+        public TextView tvMessageId;
 
-        public MessageViewHolder(View itemView) {
+        public MessageViewHolder(View itemView, MessageLongClickListener messageLongClickListener) {
             super(itemView);
 
             ivUserPicture = (ImageView) itemView.findViewById(R.id.iv_user_picture);
@@ -119,6 +143,16 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
             tvUser = (TextView) itemView.findViewById(R.id.tv_user);
             tvLatlng = (TextView) itemView.findViewById(R.id.tv_latlng);
             tvCreatedAt = (TextView) itemView.findViewById(R.id.tv_create_at);
+            tvMessageId = (TextView) itemView.findViewById(R.id.tv_message_id);
+            this.messageLongClickListener = messageLongClickListener;
+            itemView.setOnLongClickListener(this);
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            String messageId = ((TextView) view.findViewById(R.id.tv_message_id)).getText().toString();
+            messageLongClickListener.messageOnLongClick(messageId);
+            return false;
         }
 
     }
@@ -142,5 +176,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.MainView
         public MainViewHolder(View v) {
             super(v);
         }
+
+
     }
 }

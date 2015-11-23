@@ -1,9 +1,12 @@
 package com.puuga.opennote;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,7 +35,8 @@ import retrofit.Retrofit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ProfileActivityFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ProfileActivityFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener,
+        ProfileAdapter.ProfileAdapterLongClickListener {
 
     SwipeRefreshLayout swipeLayout;
     private RecyclerView recyclerView;
@@ -92,7 +96,7 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
 
     private void initInstances(View view) {
         messageList = new ArrayList<>();
-        ProfileAdapter profileAdapter = new ProfileAdapter(getActivity(), messageList);
+        ProfileAdapter profileAdapter = new ProfileAdapter(getActivity(), messageList, this);
 
         swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_layout);
         swipeLayout.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW);
@@ -152,5 +156,58 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
     @Override
     public void onRefresh() {
         getMyProfile();
+    }
+
+    @Override
+    public void recyclerViewLongClick(String messageID) {
+        Log.d("messageID", "long click: " + messageID);
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("Delete Message")
+                .build());
+
+        makePermissionToDeleteMessageDialog(messageID).show();
+    }
+
+    private Dialog makePermissionToDeleteMessageDialog(final String messageID) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.confirm_to_delete)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteMessage(messageID);
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    private void deleteMessage(String messageID) {
+        Call<Message[]> call = service.deleteMessages(settingHelper.getAppId(), messageID);
+        call.enqueue(new Callback<Message[]>() {
+            @Override
+            public void onResponse(Response<Message[]> response, Retrofit retrofit) {
+                try {
+                    response.errorBody().string();
+                    Log.d("response_error", response.errorBody().string());
+                } catch (Exception ignored) {
+                }
+                Message[] messages = response.body();
+                Log.d("messageD", "length " + messages.length);
+
+                getMyProfile();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
     }
 }

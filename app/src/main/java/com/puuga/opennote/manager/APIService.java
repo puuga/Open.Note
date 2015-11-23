@@ -24,6 +24,10 @@ public interface APIService {
     Call<Message[]> loadMessages(@Query("lat") String lat,
                                  @Query("lng") String lng);
 
+    @GET(Constant.API_DELETE_MESSAGE)
+    Call<Message[]> deleteMessages(@Query("user_id") String user_id,
+                                 @Query("message_id") String message_id);
+
     @POST(Constant.API_REGISTER_USER)
     Call<User> registerUser(@Body User user);
 
