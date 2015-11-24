@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -13,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -41,11 +41,6 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
     SwipeRefreshLayout swipeLayout;
     private RecyclerView recyclerView;
     private List<Message> messageList;
-
-    TextView tvUserName;
-    TextView tvUserEmail;
-    TextView tvMessagesCount;
-    TextView tvAllMessages;
 
     User me;
 
@@ -200,6 +195,9 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
                 }
                 Message[] messages = response.body();
                 Log.d("messageD", "length " + messages.length);
+
+                Snackbar.make(swipeLayout, "Deleted", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
 
                 getMyProfile();
             }
