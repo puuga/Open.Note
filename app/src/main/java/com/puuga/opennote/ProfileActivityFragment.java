@@ -83,10 +83,9 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
     }
 
     private void initGoogleAnalytic() {
-        AnalyticsTrackers.initialize(getActivity());
-        AnalyticsTrackers analytics = AnalyticsTrackers.getInstance();
-        // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-        mTracker = analytics.get(AnalyticsTrackers.Target.APP);
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     private void initInstances(View view) {

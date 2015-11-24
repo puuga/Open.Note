@@ -2,6 +2,8 @@ package com.puuga.opennote;
 
 import android.app.Application;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.puuga.opennote.helper.Constant;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
@@ -16,6 +18,9 @@ public class AnalyticsApplication extends Application {
 
     // SharedPreferences
     private SettingHelper settingHelper;
+
+    // GMS Tracker
+    private Tracker mTracker;
 
     // Retrofit
     private APIService service;
@@ -37,5 +42,18 @@ public class AnalyticsApplication extends Application {
             service = retrofit.create(APIService.class);
         }
         return service;
+    }
+
+    /**
+     * Gets the default {@link Tracker} for this {@link Application}.
+     * @return tracker
+     */
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.global_tracker);
+        }
+        return mTracker;
     }
 }
