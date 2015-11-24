@@ -8,6 +8,7 @@ buildscript {
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'io.fabric'
 
 repositories {
@@ -22,8 +23,8 @@ android {
         applicationId "com.puuga.opennote"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 55
-        versionName '1.6.0'
+        versionCode 56
+        versionName '1.6.1'
     }
     buildTypes {
         release {
@@ -38,7 +39,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
         transitive = true;
     }
     compile 'com.android.support:support-v4:23.1.1'
