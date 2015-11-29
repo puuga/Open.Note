@@ -1,10 +1,18 @@
 package com.puuga.opennote;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,6 +64,12 @@ public class MapFragment extends Fragment implements
 
     // SharedPreferences
     SettingHelper settingHelper;
+
+    // REQUEST_LOCATION code
+    private static final int REQUEST_LOCATION = 2;
+
+    Dialog denyLocationPermissionDialog;
+    Dialog requestLocationPermissionDialog;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -114,6 +128,86 @@ public class MapFragment extends Fragment implements
         Log.d("GoogleMap", "Ready");
 
         mGoogleMap = googleMap;
+
+        if (checkLocationPermission()) {
+            setMap();
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Display UI and wait for user interaction
+                if (requestLocationPermissionDialog == null) {
+                    requestLocationPermissionDialog = makeRequestLocationPermissionDialog();
+                }
+                requestLocationPermissionDialog.show();
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION);
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setMap();
+                } else {
+                    // Permission was denied or request was cancelled
+                    if (denyLocationPermissionDialog == null) {
+                        denyLocationPermissionDialog = makeDenyLocationPermissionDialog();
+                    }
+                    denyLocationPermissionDialog.show();
+                }
+            }
+        }
+
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    boolean checkLocationPermission() {
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    private Dialog makeRequestLocationPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.message_request_location_permission)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                REQUEST_LOCATION);
+                        dialog.dismiss();
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    private Dialog makeDenyLocationPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.message_deny_location_permission)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        getActivity().finish();
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+    void setMap() {
         mGoogleMap.setMyLocationEnabled(true);
 
         mGoogleMap.setOnMapClickListener(this);
@@ -261,9 +355,13 @@ public class MapFragment extends Fragment implements
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putFloat(Constant.CAMERA_ZOOM, mCameraPosition.zoom);
-        outState.putDouble(Constant.CAMERA_LAT, mCameraPosition.target.latitude);
-        outState.putDouble(Constant.CAMERA_LNG, mCameraPosition.target.longitude);
+        try {
+            outState.putFloat(Constant.CAMERA_ZOOM, mCameraPosition.zoom);
+            outState.putDouble(Constant.CAMERA_LAT, mCameraPosition.target.latitude);
+            outState.putDouble(Constant.CAMERA_LNG, mCameraPosition.target.longitude);
+        } catch (Exception ignored) {
+
+        }
     }
 
     public interface OnFragmentReadyListener {
