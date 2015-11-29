@@ -118,6 +118,8 @@
                 android:value="com.puuga.opennote.MainActivity" />
         </activity>
         <activity android:name="com.mixpanel.android.surveys.SurveyActivity" />
+        <activity android:name=".AboutActivity"
+            android:label="@string/title_activity_about"></activity>
     </application>
 
 </manifest>

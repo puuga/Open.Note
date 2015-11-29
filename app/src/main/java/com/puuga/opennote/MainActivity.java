@@ -453,6 +453,10 @@ public class MainActivity extends AppCompatActivity implements
                 Intent iFacebookLoginActivity = new Intent(this, FacebookLoginActivity.class);
                 startActivity(iFacebookLoginActivity);
                 return true;
+            case R.id.action_about:
+                Intent iAboutActivity = new Intent(this, AboutActivity.class);
+                startActivity(iAboutActivity);
+                return true;
             case R.id.action_profile:
                 Intent iProfileActivity = new Intent(this, ProfileActivity.class);
                 startActivity(iProfileActivity);
