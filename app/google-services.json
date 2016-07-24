@@ -1,1 +1,49 @@
-{"project_info":{"project_id":"hip-orbit-107016","project_number":"753849331314","name":"OpenNote"},"client":[{"client_info":{"mobilesdk_app_id":"1:753849331314:android:ae7b84f1bc51c07e","client_id":"android:com.puuga.opennote","client_type":1,"android_client_info":{"package_name":"com.puuga.opennote"}},"oauth_client":[],"api_key":[],"services":{"analytics_service":{"status":2,"analytics_property":{"tracking_id":"UA-40963799-8"}},"cloud_messaging_service":{"status":1,"apns_config":[]},"appinvite_service":{"status":1,"other_platform_oauth_client":[]},"google_signin_service":{"status":1},"ads_service":{"status":1}}}],"client_info":[],"ARTIFACT_VERSION":"1"}
+{
+  "project_info": {
+    "project_number": "753849331314",
+    "firebase_url": "https://hip-orbit-107016.firebaseio.com",
+    "project_id": "hip-orbit-107016",
+    "storage_bucket": "hip-orbit-107016.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753849331314:android:ae7b84f1bc51c07e",
+        "android_client_info": {
+          "package_name": "com.puuga.opennote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753849331314-ogciv7d7ah7f1l3qkakbjsnn3g7astqd.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "753849331314-d57p40u0du9gfsk1084ejkp68kc6ubn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5w0fu65TbExSTfdUXsZg2BA13PKhFe-4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-40963799-8"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
