@@ -8,8 +8,9 @@ import com.puuga.opennote.helper.Constant;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 
 /**
  * Created by siwaweswongcharoen on 10/4/2015 AD.

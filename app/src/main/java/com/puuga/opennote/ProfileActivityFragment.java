@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 /**
  * A placeholder fragment containing a simple view.
@@ -132,7 +132,7 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
         Call<User> call = service.me(settingHelper.getAppId());
         call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Response<User> response, Retrofit retrofit) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 User user = response.body();
                 Log.d("me", user.toString());
                 me = user;
@@ -141,7 +141,7 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
 
             }
         });
@@ -186,7 +186,7 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
         Call<Message[]> call = service.deleteMessages(settingHelper.getAppId(), messageID);
         call.enqueue(new Callback<Message[]>() {
             @Override
-            public void onResponse(Response<Message[]> response, Retrofit retrofit) {
+            public void onResponse(Call<Message[]> call, Response<Message[]> response) {
                 try {
                     response.errorBody().string();
                     Log.d("response_error", response.errorBody().string());
@@ -202,7 +202,7 @@ public class ProfileActivityFragment extends Fragment implements SwipeRefreshLay
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<Message[]> call, Throwable t) {
 
             }
         });

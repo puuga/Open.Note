@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Open.Note</string>
     <string name="facebook_app_id">1538059569817668</string>
+    <string name="fb_login_protocol_scheme">1538059569817668</string>
     <string name="mixpanel_token">851089744fc09ecb6333420beb4176e5</string>
     <string name="action_settings">Settings</string>
     <string name="action_profile">Profile</string>

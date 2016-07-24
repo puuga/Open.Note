@@ -54,10 +54,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
         MapFragment.OnFragmentReadyListener,
@@ -197,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements
         Call<Message> call = service.submitMessage(settingHelper.getAppId(), message, lat, lng);
         call.enqueue(new Callback<Message>() {
             @Override
-            public void onResponse(Response<Message> response, Retrofit retrofit) {
+            public void onResponse(Call<Message> call, Response<Message> response) {
                 Message message = response.body();
                 Snackbar.make(fab, "Submitted", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -209,8 +208,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void onFailure(Throwable t) {
-
+            public void onFailure(Call<Message> call, Throwable t) {
+                Log.d("MainActivity", "submitMessage - onFailure", t);
             }
         });
     }
@@ -242,12 +241,7 @@ public class MainActivity extends AppCompatActivity implements
         Call<Message[]> call = service.loadMessages(lat, lng);
         call.enqueue(new Callback<Message[]>() {
             @Override
-            public void onResponse(Response<Message[]> response, Retrofit retrofit) {
-                try {
-                    response.errorBody().string();
-                    Log.d("response_error", response.errorBody().string());
-                } catch (Exception ignored) {
-                }
+            public void onResponse(Call<Message[]> call, Response<Message[]> response) {
                 Message[] messages = response.body();
 //                Toast.makeText(getApplicationContext(), "response", Toast.LENGTH_SHORT).show();
 //                Snackbar.make(fab, "Messages loaded", Snackbar.LENGTH_LONG)
@@ -263,8 +257,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void onFailure(Throwable t) {
-                Log.d("response_failure", t.getMessage());
+            public void onFailure(Call<Message[]> call, Throwable t) {
+                Log.d("MainActivity", "loadMessages - onFailure", t);
             }
         });
     }
@@ -418,9 +412,7 @@ public class MainActivity extends AppCompatActivity implements
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 1
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // We can now safely use the API we requested access to
-                LocationServices.FusedLocationApi.requestLocationUpdates(
-                        mGoogleApiClient, mLocationRequest, this);
+                startLocationUpdates();
             } else {
                 // Permission was denied or request was cancelled
                 if (denyLocationPermissionDialog == null) {
@@ -544,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         if (mResolvingError) {
             // Already attempting to resolve an error.
             return;

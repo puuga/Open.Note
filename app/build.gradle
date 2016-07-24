@@ -20,10 +20,10 @@ android {
     buildToolsVersion '24.0.0'
     defaultConfig {
         applicationId "com.puuga.opennote"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 24
-        versionCode 60
-        versionName '1.8.0'
+        versionCode 65
+        versionName '1.9.1'
     }
     buildTypes {
         release {
@@ -38,7 +38,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.1@aar') {
         transitive = true;
     }
     compile 'com.android.support:support-v4:24.1.1'
@@ -49,6 +49,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-analytics:9.2.1'
     compile 'com.google.android.gms:play-services-maps:9.2.1'
     compile 'com.google.android.gms:play-services-location:9.2.1'
+    compile 'com.google.firebase:firebase-crash:9.2.1'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'

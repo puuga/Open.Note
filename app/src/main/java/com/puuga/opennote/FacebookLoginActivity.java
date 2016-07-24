@@ -20,11 +20,14 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.crash.FirebaseCrash;
 import com.puuga.opennote.helper.SettingHelper;
 import com.puuga.opennote.manager.APIService;
 import com.puuga.opennote.model.User;
@@ -36,10 +39,9 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 import io.fabric.sdk.android.Fabric;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FacebookLoginActivity extends AppCompatActivity {
 
@@ -49,6 +51,8 @@ public class FacebookLoginActivity extends AppCompatActivity {
     LoginButton btnFacebookLogin;
     CallbackManager callbackManager;
     AccessTokenTracker accessTokenTracker;
+    ProfileTracker fbProfileTracker;
+    Profile fbProfile;
 
     // SharedPreferences
     SettingHelper settingHelper;
@@ -145,6 +149,8 @@ public class FacebookLoginActivity extends AppCompatActivity {
                         .build());
             }
         });
+
+
     }
 
     private void initFacebookSdk() {
@@ -165,9 +171,26 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
                     setFacebookInfo(false, "", "", "");
                     setAppInfo("");
+
                 }
             }
         };
+
+        fbProfileTracker = new ProfileTracker() {
+            @Override
+            protected void onCurrentProfileChanged(
+                    Profile oldProfile,
+                    Profile currentProfile) {
+                // App code
+                fbProfile = currentProfile;
+                Log.d("fbProfileTracker", "facebook:Login");
+
+                if (fbProfile!=null) {
+
+                }
+            }
+        };
+
     }
 
     private void getFacebookUserInfo(final LoginResult loginResult) {
@@ -208,7 +231,8 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
                             registerUser(user, facebookToken);
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            FirebaseCrash.report(e);
+                            Crashlytics.logException(e);
                         }
                     }
                 });
@@ -236,6 +260,13 @@ public class FacebookLoginActivity extends AppCompatActivity {
 
         // Logs 'app deactivate' App Event.
         AppEventsLogger.deactivateApp(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        accessTokenTracker.stopTracking();
+        fbProfileTracker.stopTracking();
     }
 
     @Override
@@ -283,12 +314,7 @@ public class FacebookLoginActivity extends AppCompatActivity {
         Call<User> call = service.registerUser(user.firstname, user.lastname, user.name, user.email, user.facebook_id);
         call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Response<User> response, Retrofit retrofit) {
-                try {
-                    response.errorBody().string();
-                    Log.d("response_error", response.errorBody().string());
-                } catch (Exception ignored) {
-                }
+            public void onResponse(Call<User> call, Response<User> response) {
                 User user = response.body();
                 Log.d("response", "user:" + user.toString());
 
@@ -302,8 +328,10 @@ public class FacebookLoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Log.d("response_failure", t.getMessage());
+                FirebaseCrash.report(t);
+                Crashlytics.logException(t);
             }
         });
     }
